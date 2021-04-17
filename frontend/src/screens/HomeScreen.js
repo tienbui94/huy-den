@@ -4,6 +4,7 @@ import Product from '../components/Product';
 import Message from '../components/Message';
 import Loader from '../components/Loader';
 import Helmet from '../components/Helmet';
+import Banner from '../components/Banner'
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { listProducts } from '../actions/productAction';
@@ -24,17 +25,17 @@ const HomeScreen = ({ match }) => {
     return (
         <>
             <Helmet />
-            <h1>Latest Product</h1>
+            
             {loading ? (
                 <Loader />
             ) : error ? (
                 <Message variant='error' />
             ) : (
                 <>
+                <Banner />
                     <Row>
                         {products.map((product) => (
                             <Col key={product._id} sm={12} md={6} lg={4} xs={3}>
-                                <h3>{product.name}</h3>
                                 <Product item={product} />
                             </Col>
                         ))}

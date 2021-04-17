@@ -11,9 +11,9 @@ const HelmetMeta = ({ title, description, keywords }) => {
 };
 
 HelmetMeta.defaultProps = {
-    title: 'Welcome to ThiNguyen Shop',
+    title: 'Welcome to Huy Shop',
     description: 'We sell best items',
-    keywords: 'Thi oi Thi oi'
+    keywords: 'Huy Den'
 };
 
 export default HelmetMeta;
