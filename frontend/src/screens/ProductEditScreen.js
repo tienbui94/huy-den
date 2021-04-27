@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { Form, Button } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
@@ -10,54 +9,39 @@ import Loader from '../components/Loader';
 import { PRODUCT_UPDATE_RESET } from '../constants/productConstants';
 const ProductEditScreen = ({ history, match }) => {
     const productId = match.params.id;
-    const [name, setName] = useState('');
-    const [price, setPrice] = useState(0);
-    const [image, setImage] = useState('');
-    const [brand, setBrand] = useState('');
-    const [category, setCategory] = useState('');
-    const [countInStock, setCountInStock] = useState(0);
-    const [description, setDescription] = useState('');
-    const [uploading, setUploading] = useState(false);
+    const productDetail = useSelector((state) => state.productDetail);
+    const { error, loading, product } = productDetail;
+    const [name, setName] = useState(product?.name || '');
+    const [price, setPrice] = useState(product?.price || 0);
+    const [image, setImage] = useState(product?.image || '');
+    const [brand, setBrand] = useState(product?.brand || '');
+    const [category, setCategory] = useState(product?.category || '');
+    const [countInStock, setCountInStock] = useState(product?.countInStock || 0);
+    const [description, setDescription] = useState( product?.description || '');
 
     const dispatch = useDispatch();
 
-    const productDetail = useSelector((state) => state.productDetail);
-    const { error, loading, product } = productDetail;
+
 
     const productUpdate = useSelector((state) => state.productUpdate);
     const { error: errorUpdate, loading: loadingUpdate, success: successUpdate } = productUpdate;
 
     useEffect(() => {
         if (successUpdate) {
-            dispatch({ type: PRODUCT_UPDATE_RESET });
-            history.push('/admin/product-list');
-        } else {
-            if (product?.name || product?._id !== productId) {
-                dispatch(listProductDetails(productId));
-            } else {
-                setName(product?.name);
-                setPrice(product?.price);
-                setImage(product?.image);
-                setBrand(product?.brand);
-                setCategory(product?.category);
-                setCountInStock(product?.countInStock);
-                setDescription(product?.description);
-            }
+           return [dispatch({ type: PRODUCT_UPDATE_RESET }),
+            history.push('/admin/product-list')]
         }
-    }, [
+
+        if (product?.name || product?._id !== productId) {
+            return dispatch(listProductDetails(productId));
+        }
+       },[
         dispatch,
         productId,
-        product?._id,
-        product?.name,
-        product?.price,
-        product?.image,
-        product?.brand,
-        product?.category,
-        product?.countInStock,
-        product?.description,
+        product,
+        history,
         successUpdate,
-        history
-    ]);
+        ]);
 
     const submitHandler = (e) => {
         e.preventDefault();
@@ -73,28 +57,6 @@ const ProductEditScreen = ({ history, match }) => {
                 description
             })
         );
-    };
-
-    const uploadHandler = async (e) => {
-        const file = e.target.files[0];
-        const formData = new FormData();
-        formData.append('image', file);
-        setUploading(true);
-
-        try {
-            const config = {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            };
-
-            const { data } = await axios.post('/api/upload', formData, config);
-            setImage(data);
-            setUploading(false);
-        } catch (error) {
-            console.log(error);
-            setUploading(false);
-        }
     };
 
     return (
@@ -138,13 +100,6 @@ const ProductEditScreen = ({ history, match }) => {
                                 checked={image}
                                 onChange={(e) => setImage(e.target.value)}></Form.Control>
                         </Form.Group>
-                        <Form.File
-                            id='image-file'
-                            label='Choose File'
-                            custom
-                            onChange={uploadHandler}>
-                            {uploading && <Loader />}
-                        </Form.File>
 
                         <Form.Group controlId='brand'>
                             <Form.Label>Brand</Form.Label>
